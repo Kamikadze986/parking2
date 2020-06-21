@@ -10,8 +10,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polygon;
-import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -19,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
-    String mapsApiKey="AIzaSyCGCNLdZjqwv3KuBVSsPjNhp7vLJTyoJ9E";
     private int p;
     private double x=0,y=0,Ax,Ay,min=99999,Lon,Lat;
     private double [][] parking = new double[5][4];
