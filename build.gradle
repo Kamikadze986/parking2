@@ -13,9 +13,7 @@ buildscript {
         // in the individual module build.gradle files
     }
 }
-//dependencies {
-//    implementation  'com.squareup.retrofit2:converter-gson:2.0.0'
-//}
+//
 allprojects {
     repositories {
         google()

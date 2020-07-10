@@ -1,37 +1,32 @@
 package com.example.myapplication;
 
-import androidx.fragment.app.FragmentActivity;
-import androidx.room.Query;
 import android.os.Bundle;
 
-import com.google.android.gms.common.api.ApiException;
+import androidx.fragment.app.FragmentActivity;
+
+import com.example.myapplication.retrofit.RouteApi;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.maps.DirectionsApi;
-import com.google.maps.GeoApiContext;
-import com.google.maps.model.DirectionsResult;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import retrofit2.Callback;
-import retrofit2.http.GET;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
     private int p;
-    private double x=0,y=0,Ax,Ay,min=99999,Lon,Lat;
+    private double x=0,y=0,Ax,Ay,min=99999, lon, lat;
     private double [][] parking = new double[5][4];
     private List<LatLng> places = new ArrayList<>();
-    private GoogleMap mMap;
+    private UiSettings mUiSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,59 +87,40 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 p=i;
             }
         }
-        Lon=parking[p][0];
-        Lat=parking[p][1];
+        lon =parking[p][0];
+        lat =parking[p][1];
     }
-    public class RouteResponse {
 
-        public List<Route> routes;
-
-        public String getPoints() {
-            return this.routes.get(0).overview_polyline.points;
-        }
-
-        class Route {
-            OverviewPolyline overview_polyline;
-        }
-
-        class OverviewPolyline {
-            String points;
-        }
-    }
-    //Интерфейс для запросак маршрута
-    public interface RouteApi {
-        @GET("/maps/api/directions/json")
-        void getRoute(
-                @Query(value = "origin", encodeValue = false) String position,
-                @Query(value = "destination", encodeValue = false) String destination,
-                @Query("sensor") boolean sensor,
-                @Query("language") String language,
-                Callback<RouteResponse> cb
-        );
-    }
     @Override
     public void onMapReady(GoogleMap googleMap) {
         places.add(new LatLng(x, y));
-        places.add(new LatLng(Lon, Lat));
-        String mapsApiKey= ("AIzaSyCO_UV7Q43xZ0YEIg2pn3D1j4Nq0tBe2C8");
-        GeoApiContext geoApiContext = new GeoApiContext.Builder()
-                .apiKey(mapsApiKey)
+        places.add(new LatLng(lon, lat));
+        mUiSettings = googleMap.getUiSettings();
+
+        // Keep the UI Settings state in sync with the checkboxes.
+        mUiSettings.setZoomControlsEnabled(true);
+        String mapsApiKey= "AIzaSyCO_UV7Q43xZ0YEIg2pn3D1j4Nq0tBe2C8";
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(places.get(1), 13));
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://maps.googleapis.com/maps/api/directions/json")
+                .addConverterFactory(GsonConverterFactory.create())
                 .build();
-        mMap = googleMap;
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(places.get(1), 13));
+
+        RouteApi routeApi = retrofit.create(RouteApi.class);
+        routeApi.getRoute(x+","+y, lon+","+lat, mapsApiKey);
+
 
         Polyline polyline1 = googleMap.addPolyline(new PolylineOptions()
                 .clickable(true)
-                .add(
-                        new LatLng(56.141479, 47.212692),
-                        new LatLng(Lon, Lat)));
+                .add(new LatLng(56.141479, 47.212692),
+                        new LatLng(lon, lat)));
         polyline1.setTag("A");
 
         googleMap.addMarker(new MarkerOptions()
-                .position(new LatLng(Lon, Lat))
+                .position(new LatLng(lon, lat))
                 .title("Marker")
                 .draggable(false)
         );
     }
-
 }
