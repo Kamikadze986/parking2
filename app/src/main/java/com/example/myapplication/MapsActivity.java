@@ -67,7 +67,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .build();
         onMapReadyCallback = this;
 
-
         String startLocation = String.format(Locale.ENGLISH, "%f,%f", x, y);
         String endLocation = String.format(Locale.ENGLISH, "%f,%f", lon, lat);
         endLocations = new ArrayList<>();
